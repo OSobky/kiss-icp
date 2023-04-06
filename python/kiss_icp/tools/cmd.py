@@ -59,6 +59,7 @@ docstring = f"""
 [bold green]Examples: [/bold green]
 # Process all pointclouds in the given <data-dir> \[{", ".join(supported_file_extensions())}]
 $ kiss_icp_pipeline --visualize <data-dir>:open_file_folder:
+$ kiss_icp_pipeline --visualize <data-dir> <data-dir-infra> :open_file_folder:
 
 # Process a given rosbag file
 $ kiss_icp_pipeline --topic /cloud_node --visualize <path-to-my-rosbag.bag>:page_facing_up:
