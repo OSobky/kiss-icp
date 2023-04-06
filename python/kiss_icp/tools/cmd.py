@@ -78,6 +78,14 @@ def kiss_icp_pipeline(
         help="The data directory used by the specified dataloader",
         show_default=False,
     ),
+    # modifications done by Omar for experiments for localization with Vehicle-Infra 
+    # ------------------------------------------------------------------------------
+    data_infra: Optional[Path] = typer.Argument(
+        ...,
+        help="The data directory used to generate local map",
+        show_default=False,
+    ),
+    # ------------------------------------------------------------------------------
     dataloader: str = typer.Option(
         "generic",
         show_default=False,
