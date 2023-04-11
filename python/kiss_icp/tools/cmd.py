@@ -81,10 +81,12 @@ def kiss_icp_pipeline(
     ),
     # modifications done by Omar for experiments for localization with Vehicle-Infra 
     # ------------------------------------------------------------------------------
-    data_infra: Optional[Path] = typer.Argument(
-        ...,
-        help="The data directory used to generate local map",
+    data_infra: Optional[Path] = typer.Option(
+        None,
+        "--data-infra",
+        exists=True,
         show_default=False,
+        help="[Optional] The data directory used to generate local map",
     ),
     # ------------------------------------------------------------------------------
     dataloader: str = typer.Option(
@@ -198,6 +200,17 @@ def kiss_icp_pipeline(
             topic=topic,
             meta=meta,
         ),
+        # modifications done by Omar for experiments for localization with Vehicle-Infra 
+        # ------------------------------------------------------------------------------
+        dataset_infra=dataset_factory(
+            dataloader=dataloader,
+            data_dir=data_infra,
+            # Additional options
+            sequence=sequence,
+            topic=topic,
+            meta=meta,
+        ),
+        # ------------------------------------------------------------------------------
         config=config,
         deskew=deskew,
         max_range=max_range,

@@ -23,8 +23,8 @@
 import contextlib
 import datetime
 import os
-from pathlib import Path
 import time
+from pathlib import Path
 from typing import List, Optional
 
 import numpy as np
@@ -42,6 +42,10 @@ class OdometryPipeline:
     def __init__(
         self,
         dataset,
+        # modifications done by Omar for experiments for localization with Vehicle-Infra 
+        # ------------------------------------------------------------------------------
+        dataset_infra = None,
+        # ------------------------------------------------------------------------------
         config: Optional[Path] = None,
         deskew: Optional[bool] = False,
         max_range: Optional[float] = None,
@@ -50,6 +54,10 @@ class OdometryPipeline:
         jump: int = 0,
     ):
         self._dataset = dataset
+        # modifications done by Omar for experiments for localization with Vehicle-Infra 
+        # ------------------------------------------------------------------------------
+        self._dataset_infra = dataset_infra
+        # ------------------------------------------------------------------------------
         self._n_scans = (
             len(self._dataset) - jump if n_scans == -1 else min(len(self._dataset) - jump, n_scans)
         )
