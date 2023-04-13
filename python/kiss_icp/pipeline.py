@@ -90,7 +90,11 @@ class OdometryPipeline:
 
     # Public interface  ------
     def run(self):
-        self._run_pipeline()
+        # modifications done by Omar for experiments for localization with Vehicle-Infra 
+        # ------------------------------------------------------------------------------
+        self._run_pipeline(mode=0)
+        # self._run_pipeline()
+        # ------------------------------------------------------------------------------
         self._run_evaluation()
         self._create_output_dir()
         self._write_result_poses()
@@ -100,23 +104,53 @@ class OdometryPipeline:
         return self.results
 
     # Private interface  ------
-    def _run_pipeline(self):
-        for idx in get_progress_bar(self._first, self._last):
-            raw_frame, timestamps = self._next(idx)
-            start_time = time.perf_counter_ns()
-            source, keypoints = self.odometry.register_frame(raw_frame, timestamps)
-            self.times.append(time.perf_counter_ns() - start_time)
-            self.visualizer.update(source, keypoints, self.odometry.local_map, self.poses[-1])
+    # def _run_pipeline(self):
+    #     for idx in get_progress_bar(self._first, self._last):
+    #         raw_frame, timestamps = self._next(idx)
+    #         start_time = time.perf_counter_ns()
+    #         source, keypoints = self.odometry.register_frame(raw_frame, timestamps)
+    #         self.times.append(time.perf_counter_ns() - start_time)
+    #         self.visualizer.update(source, keypoints, self.odometry.local_map, self.poses[-1])
+    # modifications done by Omar for experiments for localization with Vehicle-Infra 
+    # ------------------------------------------------------------------------------
+    def _run_pipeline(self, mode):
+        """
+        Mode indicates which experiments is running.
+        Mode == 0: Registering vehicle within infra. Means That local map 
+                   is created from infra while vehicle tries to register to it.
+        """
+        if mode == 0:
+            for idx in get_progress_bar(self._first, self._last):
+                source_raw_frame, source_timestamps = self._next(self._dataset, idx)
+                target_raw_frame, target_timestamps = self._next(self._dataset_infra, idx)
+                start_time = time.perf_counter_ns()
+                source, keypoints = self.odometry.register_frame(source_raw_frame, target_raw_frame,source_timestamps, target_timestamps)
+                self.times.append(time.perf_counter_ns() - start_time)
+                self.visualizer.update(source, keypoints, self.odometry.target_local_map, self.poses[-1])
+    # ------------------------------------------------------------------------------
+    
+    # def _next(self, idx):
+    #     """TODO: re-arrange this logic"""
+    #     dataframe = self._dataset[idx]
+    #     try:
+    #         frame, timestamps = dataframe
+    #     except ValueError:
+    #         frame = dataframe
+    #         timestamps = np.zeros(frame.shape[0])
+    #     return frame, timestamps
 
-    def _next(self, idx):
+    # modifications done by Omar for experiments for localization with Vehicle-Infra 
+    # ------------------------------------------------------------------------------
+    def _next(self, dataset, idx):
         """TODO: re-arrange this logic"""
-        dataframe = self._dataset[idx]
+        dataframe = dataset[idx]
         try:
             frame, timestamps = dataframe
         except ValueError:
             frame = dataframe
             timestamps = np.zeros(frame.shape[0])
         return frame, timestamps
+    # ------------------------------------------------------------------------------
 
     @staticmethod
     def save_poses_kitti_format(filename: str, poses: List[np.ndarray]):
