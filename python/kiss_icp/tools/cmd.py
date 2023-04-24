@@ -84,7 +84,6 @@ def kiss_icp_pipeline(
     data_infra: Optional[Path] = typer.Option(
         None,
         "--data-infra",
-        exists=True,
         show_default=False,
         help="[Optional] The data directory used to generate local map",
     ),
