@@ -77,6 +77,8 @@ class KissICP:
             kernel=sigma / 3,
         )
 
+        self.target_local_map = get_voxel_hash_map(self.config)        
+
         self.adaptive_threshold.update_model_deviation(np.linalg.inv(initial_guess) @ new_pose)
         self.target_local_map.update(target_frame_downsample, new_pose)
         self.poses.append(new_pose)

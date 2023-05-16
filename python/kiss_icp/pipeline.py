@@ -121,12 +121,13 @@ class OdometryPipeline:
         """
         if mode == 0:
             for idx in get_progress_bar(self._first, self._last):
-                source_raw_frame, source_timestamps = self._next(self._dataset, idx)
-                target_raw_frame, target_timestamps = self._next(self._dataset_infra, idx)
-                start_time = time.perf_counter_ns()
-                source, keypoints = self.odometry.register_frame(source_raw_frame, source_timestamps, target_raw_frame, target_timestamps)
-                self.times.append(time.perf_counter_ns() - start_time)
-                self.visualizer.update(source, keypoints, self.odometry.target_local_map, self.poses[-1])
+                if idx != 0:
+                    source_raw_frame, source_timestamps = self._next(self._dataset, idx-1)
+                    target_raw_frame, target_timestamps = self._next(self._dataset_infra, idx)
+                    start_time = time.perf_counter_ns()
+                    source, keypoints = self.odometry.register_frame(source_raw_frame, source_timestamps, target_raw_frame, target_timestamps)
+                    self.times.append(time.perf_counter_ns() - start_time)
+                    self.visualizer.update(source, keypoints, self.odometry.target_local_map, self.poses[-1])
     # ------------------------------------------------------------------------------
     
     # def _next(self, idx):
