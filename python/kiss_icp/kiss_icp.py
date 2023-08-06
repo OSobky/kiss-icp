@@ -37,13 +37,14 @@ from scipy.linalg import svd
 
 
 class KissICP:
-    def __init__(self, config: KISSConfig):
+    def __init__(self, config: KISSConfig, local_map_path: Optional[Path] = None):
         self.poses = []
         self.config = config
         self.compensator = get_motion_compensator(config)
         self.adaptive_threshold = get_threshold_estimator(self.config)
-        self.local_map = get_voxel_hash_map(self.config)
+        self.local_map = get_voxel_hash_map(self.config, local_map_path)
         self.preprocess = get_preprocessor(self.config)
+        self.local_map_path = local_map_path
 
     def register_frame(self, frame, timestamps):
         # Apply motion compensation
@@ -89,7 +90,8 @@ class KissICP:
         )
 
         self.adaptive_threshold.update_model_deviation(np.linalg.inv(initial_guess) @ new_pose)
-        self.local_map.update(frame_downsample, new_pose)
+        if not self.local_map_path:
+            self.local_map.update(frame_downsample, new_pose)
         self.poses.append(new_pose)
         return frame, source
 
