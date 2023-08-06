@@ -29,15 +29,19 @@ from kiss_icp.preprocess import get_preprocessor
 from kiss_icp.registration import register_frame
 from kiss_icp.threshold import get_threshold_estimator
 from kiss_icp.voxelization import voxel_down_sample
+from typing import Optional
+from pathlib import Path
+
+
 
 
 class KissICP:
-    def __init__(self, config: KISSConfig):
+    def __init__(self, config: KISSConfig, local_map_path: Optional[Path] = None):
         self.poses = []
         self.config = config
         self.compensator = get_motion_compensator(config)
         self.adaptive_threshold = get_threshold_estimator(self.config)
-        self.local_map = get_voxel_hash_map(self.config)
+        self.local_map = get_voxel_hash_map(self.config) if not local_map_path else get_voxel_hash_map(self.config, local_map_path)
         self.preprocess = get_preprocessor(self.config)
 
     def register_frame(self, frame, timestamps):

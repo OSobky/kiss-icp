@@ -48,6 +48,8 @@ class OdometryPipeline:
         visualize: bool = False,
         n_scans: int = -1,
         jump: int = 0,
+        local_map_path: Optional[Path] = None, # Add this line to pass local_map_path
+
     ):
         self._dataset = dataset
         self._n_scans = (
@@ -62,7 +64,10 @@ class OdometryPipeline:
         self.results_dir = None
 
         # Pipeline
-        self.odometry = KissICP(config=self.config)
+        if local_map_path is None:
+            self.odometry = KissICP(config=self.config)
+        else:
+            self.odometry = KissICP(config=self.config, local_map_path=local_map_path)
         self.results = PipelineResults()
         self.times = []
         self.poses = self.odometry.poses
