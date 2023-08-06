@@ -29,6 +29,11 @@ from kiss_icp.preprocess import get_preprocessor
 from kiss_icp.registration import register_frame
 from kiss_icp.threshold import get_threshold_estimator
 from kiss_icp.voxelization import voxel_down_sample
+from typing import Optional
+from pathlib import Path
+from scipy.linalg import svd
+
+
 
 
 class KissICP:
@@ -52,11 +57,27 @@ class KissICP:
 
         # Get motion prediction and adaptive_threshold
         sigma = self.get_adaptive_threshold()
+        
+        # Getting the initial guess from GPS & IMU
+        initial_guess_gps_imu = np.array ([ [-0.99020627, 0.13879157, -0.01511402, 130.24423400],
+                                    [-0.13904888, -0.99012982, 0.01755990, 12.73468622],
+                                    [-0.01252768, 0.01948952, 0.99973157, -3.67920516],
+                                    [0.00000000 , 0.00000000, 0.00000000, 1.00000000]])
+        # Extract rotation component
+        R = initial_guess_gps_imu[:3, :3]
+
+        # Orthogonalize R
+        R_ortho = self.orthogonalize_matrix(R)
+
+        # Replace the rotation component with the orthogonalized matrix
+        initial_guess_gps_imu[:3, :3] = R_ortho
 
         # Compute initial_guess for ICP
         prediction = self.get_prediction_model()
-        last_pose = self.poses[-1] if self.poses else np.eye(4)
+        last_pose = self.poses[-1] if self.poses else initial_guess_gps_imu
         initial_guess = last_pose @ prediction
+
+        
 
         # Run ICP
         new_pose = register_frame(
@@ -94,4 +115,9 @@ class KissICP:
             return False
         compute_motion = lambda T1, T2: np.linalg.norm((np.linalg.inv(T1) @ T2)[:3, -1])
         motion = compute_motion(self.poses[0], self.poses[-1])
-        return motion > 5 * self.config.adaptive_threshold.min_motion_th
+    
+    
+
+    def orthogonalize_matrix(self, mat):
+        U, S, Vt = svd(mat)
+        return U @ Vt
