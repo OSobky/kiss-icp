@@ -30,19 +30,18 @@ from pathlib import Path
 
 
 
-def get_voxel_hash_map(config: KISSConfig):
-    return VoxelHashMap(
-        voxel_size=config.mapping.voxel_size,
-        max_distance=config.data.max_range,
-        max_points_per_voxel=config.mapping.max_points_per_voxel,
-    )
-
 def get_voxel_hash_map(config: KISSConfig, local_map_path: Path):
     voxel_hash_map = VoxelHashMap(
         voxel_size=config.mapping.voxel_size,
         max_distance=config.data.max_range,
         max_points_per_voxel=config.mapping.max_points_per_voxel,
     )
+
+    if not local_map_path:
+        return voxel_hash_map
+    
+    if not local_map_path.exists():
+        raise FileNotFoundError(f"Local map {local_map_path} not found")
     local_map = np.load(local_map_path)
     voxel_hash_map.add_points(local_map)
     return voxel_hash_map

@@ -48,6 +48,7 @@ class OdometryPipeline:
         visualize: bool = False,
         n_scans: int = -1,
         jump: int = 0,
+        save_map_path: Optional[Path] = None, # pass save map path to pipeline
         local_map_path: Optional[Path] = None, # Add this line to pass local_map_path
 
     ):
@@ -58,6 +59,7 @@ class OdometryPipeline:
         self._jump = jump
         self._first = jump
         self._last = self._jump + self._n_scans
+        self._save_map_path = save_map_path # Add this line to pass save map path to pipeline
 
         # Config and output dir
         self.config = load_config(config, deskew=deskew, max_range=max_range)
@@ -104,6 +106,9 @@ class OdometryPipeline:
             source, keypoints = self.odometry.register_frame(raw_frame, timestamps)
             self.times.append(time.perf_counter_ns() - start_time)
             self.visualizer.update(source, keypoints, self.odometry.local_map, self.poses[-1])
+        # Save local map
+        if self._save_map_path is not None:
+            np.save(self._save_map_path, self.odometry.local_map.point_cloud())
 
     def _next(self, idx):
         """TODO: re-arrange this logic"""
