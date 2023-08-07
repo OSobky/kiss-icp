@@ -222,6 +222,20 @@ def kiss_icp_pipeline(
         exists=True,
         show_default=False,
         help="[Optional] Path to the local map file",
+    ),
+    gps_path: Optional[Path] = typer.Option(
+        None,
+        "--gps",
+        exists=True,
+        show_default=False,
+        help="[Optional] Path to the gps folder",
+    ),
+    imu_path: Optional[Path] = typer.Option(
+        None,
+        "--imu",
+        exists=True,
+        show_default=False,
+        help="[Optional] Path to the imu folder",
     ),   
 ):
     # Attempt to guess some common file extensions to avoid using the --dataloader flag
@@ -259,6 +273,8 @@ def kiss_icp_pipeline(
         jump=jump,
         save_map_path=save_map_path,  # pass save map path to pipeline
         local_map_path=local_map_path,  # pass local map to pipeline
+        gps_path=gps_path,
+        imu_path=imu_path,
     ).run().print()
 
 
