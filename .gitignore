@@ -366,3 +366,7 @@ nn
 
 # VSCode
 .vscode
+
+# Command line examples
+cmd
+cmd_evo

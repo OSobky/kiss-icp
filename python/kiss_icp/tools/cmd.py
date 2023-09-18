@@ -208,6 +208,35 @@ def kiss_icp_pipeline(
         callback=version_callback,
         is_eager=True,
     ),
+    save_map_path: Optional[Path] = typer.Option(
+        None,
+        "--save_map",
+        "-sm",
+        show_default=False,
+        help="[Optional] Path to save the local map file",
+    ),
+    local_map_path: Optional[Path] = typer.Option(
+        None,
+        "--local_map",
+        "-l",
+        exists=True,
+        show_default=False,
+        help="[Optional] Path to the local map file",
+    ),
+    gps_path: Optional[Path] = typer.Option(
+        None,
+        "--gps",
+        exists=True,
+        show_default=False,
+        help="[Optional] Path to the gps folder",
+    ),
+    imu_path: Optional[Path] = typer.Option(
+        None,
+        "--imu",
+        exists=True,
+        show_default=False,
+        help="[Optional] Path to the imu folder",
+    ),   
 ):
     # Attempt to guess some common file extensions to avoid using the --dataloader flag
     if not dataloader:
@@ -221,6 +250,7 @@ def kiss_icp_pipeline(
     if jump != 0 and dataloader not in jumpable_dataloaders():
         print(f"[WARNING] '{dataloader}' does not support '--jump', starting from first frame")
         jump = 0
+
 
     # Lazy-loading for faster CLI
     from kiss_icp.datasets import dataset_factory
@@ -241,6 +271,10 @@ def kiss_icp_pipeline(
         visualize=visualize,
         n_scans=n_scans,
         jump=jump,
+        save_map_path=save_map_path,  # pass save map path to pipeline
+        local_map_path=local_map_path,  # pass local map to pipeline
+        gps_path=gps_path,
+        imu_path=imu_path,
     ).run().print()
 
 
