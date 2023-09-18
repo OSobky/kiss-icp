@@ -62,25 +62,29 @@ class KissICP:
         # Get motion prediction and adaptive_threshold
         sigma = self.get_adaptive_threshold()
         
-        # Getting the initial guess from GPS & IMU
-        initial_guess_gps_imu = self.initial_tf_from_gps(gps_json_path, imu_json_path)
-        
-        # Extract rotation component
-        R = initial_guess_gps_imu[:3, :3]
-
-        # Orthogonalize R
-        R_ortho = self.orthogonalize_matrix(R)
-
-        # Replace the rotation component with the orthogonalized matrix
-        initial_guess_gps_imu[:3, :3] = R_ortho
-
         # Compute initial_guess for ICP
         if not gps_json_path and not imu_json_path:
             prediction = self.get_prediction_model()
-            last_pose = self.poses[-1] if self.poses else initial_guess_gps_imu
+            last_pose = self.poses[-1] if self.poses else np.eye(4)
             initial_guess = last_pose @ prediction
         else:
+            # Getting the initial guess from GPS & IMU
+            initial_guess_gps_imu = self.initial_tf_from_gps(gps_json_path, imu_json_path)
+            
+            # Extract rotation component
+            R = initial_guess_gps_imu[:3, :3]
+
+            # Orthogonalize R
+            R_ortho = self.orthogonalize_matrix(R)
+
+            # Replace the rotation component with the orthogonalized matrix
+            initial_guess_gps_imu[:3, :3] = R_ortho
+
+            prediction = self.get_prediction_model()
+            last_pose = self.poses[-1] if self.poses else initial_guess_gps_imu
+            # initial_guess = initial_guess_gps_imu @ prediction 
             initial_guess = initial_guess_gps_imu
+
 
         
 
