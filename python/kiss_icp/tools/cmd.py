@@ -208,6 +208,13 @@ def kiss_icp_pipeline(
         callback=version_callback,
         is_eager=True,
     ),
+    target_pcd_path: Optional[Path] = typer.Option(
+        None,
+        "--target_pcd",
+        exists=True,
+        show_default=False,
+        help="[Optional] Path to the target pcd folder",
+    ),   
     save_map_path: Optional[Path] = typer.Option(
         None,
         "--save_map",
@@ -271,6 +278,14 @@ def kiss_icp_pipeline(
         visualize=visualize,
         n_scans=n_scans,
         jump=jump,
+        target_dataset=dataset_factory(
+            dataloader=dataloader,
+            data_dir=target_pcd_path,
+            # Additional options
+            sequence=sequence,
+            topic=topic,
+            meta=meta,
+            ) if target_pcd_path else None,  # pass target dataset to pipeline
         save_map_path=save_map_path,  # pass save map path to pipeline
         local_map_path=local_map_path,  # pass local map to pipeline
         gps_path=gps_path,

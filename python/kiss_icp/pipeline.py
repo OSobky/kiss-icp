@@ -48,6 +48,7 @@ class OdometryPipeline:
         visualize: bool = False,
         n_scans: int = -1,
         jump: int = 0,
+        target_dataset = None,  # pass target pcd path to pipeline
         save_map_path: Optional[Path] = None, # pass save map path to pipeline
         local_map_path: Optional[Path] = None, # Add this line to pass local_map_path
         gps_path: Optional[Path] = None, # Add this line to pass gps_path
@@ -61,6 +62,7 @@ class OdometryPipeline:
         self._jump = jump
         self._first = jump
         self._last = self._jump + self._n_scans
+        self._target_dataset = target_dataset # pass target dataset to pipeline
         self._save_map_path = save_map_path # Add this line to pass save map path to pipeline
         self._gps_path = gps_path # Add this line to pass gps_path to pipeline
         self._imu_path = imu_path # Add this line to pass imu_path to pipeline
@@ -93,9 +95,10 @@ class OdometryPipeline:
 
     # Public interface  ------
     def run(self):
+        self._create_output_dir()
         self._run_pipeline()
         self._run_evaluation()
-        self._create_output_dir()
+        
         self._write_result_poses()
         self._write_gt_poses()
         self._write_cfg()
@@ -104,7 +107,23 @@ class OdometryPipeline:
 
     # Private interface  ------
     def _run_pipeline(self):
-        if self._gps_path and self._imu_path:
+        if self._target_dataset:
+            if self._gps_path and self._imu_path:
+                for idx, gps_filename, imu_filename in  zip(get_progress_bar(self._first, self._last),
+                                                            sorted(os.listdir(self._gps_path)), 
+                                                            sorted(os.listdir(self._imu_path))):
+                    raw_frame, timestamps = self._next(idx)
+                    raw_target_frame, target_timestamps = self._next_target(idx)
+                    start_time = time.perf_counter_ns()
+                    source, keypoints = self.odometry.register_frame_online(raw_frame, raw_target_frame,timestamps,
+                                                                    os.path.join(self._gps_path, gps_filename), 
+                                                                    os.path.join(self._imu_path, imu_filename))
+                    self.times.append(time.perf_counter_ns() - start_time)
+                    self.visualizer.update(source, keypoints, self.odometry.local_map, self.poses[-1], self.results_dir, idx)
+            else: 
+                raise ValueError("To use Online registeration to target point clouds. Please provide gps_path and imu_path")
+
+        elif self._gps_path and self._imu_path:
             for idx, gps_filename, imu_filename in  zip(get_progress_bar(self._first, self._last), 
                                                         sorted(os.listdir(self._gps_path)), 
                                                         sorted(os.listdir(self._imu_path))):
@@ -114,14 +133,14 @@ class OdometryPipeline:
                                                                 os.path.join(self._gps_path, gps_filename), 
                                                                 os.path.join(self._imu_path, imu_filename))
                 self.times.append(time.perf_counter_ns() - start_time)
-                self.visualizer.update(source, keypoints, self.odometry.local_map, self.poses[-1])
+                self.visualizer.update(source, keypoints, self.odometry.local_map, self.poses[-1], self.results_dir, idx)
         else:
             for idx in get_progress_bar(self._first, self._last):
                 raw_frame, timestamps = self._next(idx)
                 start_time = time.perf_counter_ns()
                 source, keypoints = self.odometry.register_frame(raw_frame, timestamps)
                 self.times.append(time.perf_counter_ns() - start_time)
-                self.visualizer.update(source, keypoints, self.odometry.local_map, self.poses[-1])
+                self.visualizer.update(source, keypoints, self.odometry.local_map, self.poses[-1], self.results_dir, idx)
                 
         # Save local map
         if self._save_map_path is not None:
@@ -130,6 +149,16 @@ class OdometryPipeline:
     def _next(self, idx):
         """TODO: re-arrange this logic"""
         dataframe = self._dataset[idx]
+        try:
+            frame, timestamps = dataframe
+        except ValueError:
+            frame = dataframe
+            timestamps = np.zeros(frame.shape[0])
+        return frame, timestamps
+    
+    def _next_target(self, idx):
+        """TODO: re-arrange this logic"""
+        dataframe = self._target_dataset[idx]
         try:
             frame, timestamps = dataframe
         except ValueError:

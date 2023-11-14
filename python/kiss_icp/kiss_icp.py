@@ -103,6 +103,65 @@ class KissICP:
         self.poses.append(new_pose)
         return frame, source
 
+    def register_frame_online(self, frame, target_frame,timestamps, gps_json_path=None, imu_json_path=None):
+        # Apply motion compensation
+        frame = self.compensator.deskew_scan(frame, self.poses, timestamps)
+
+        # Preprocess the input cloud
+        frame = self.preprocess(frame)
+        target_frame = self.preprocess(target_frame)
+
+        # Voxelize
+        source, frame_downsample = self.voxelize(frame)
+        target, target_downsample = self.voxelize(target_frame)
+
+        # clear local_map then add target pcd to local map
+        self.local_map.clear()
+        self.local_map.add_points(target_downsample)
+
+        # Get motion prediction and adaptive_threshold
+        sigma = self.get_adaptive_threshold()
+        
+        # Compute initial_guess for ICP
+        if not gps_json_path and not imu_json_path:
+            prediction = self.get_prediction_model()
+            last_pose = self.poses[-1] if self.poses else np.eye(4)
+            initial_guess = last_pose @ prediction
+        else:
+            # Getting the initial guess from GPS & IMU
+            initial_guess_gps_imu = self.initial_tf_from_gps(gps_json_path, imu_json_path)
+            
+            # Extract rotation component
+            R = initial_guess_gps_imu[:3, :3]
+
+            # Orthogonalize R
+            R_ortho = self.orthogonalize_matrix(R)
+
+            # Replace the rotation component with the orthogonalized matrix
+            initial_guess_gps_imu[:3, :3] = R_ortho
+
+            prediction = self.get_prediction_model()
+            last_pose = self.poses[-1] if self.poses else initial_guess_gps_imu
+            # initial_guess = initial_guess_gps_imu @ prediction 
+            initial_guess = initial_guess_gps_imu
+
+
+        
+
+        # Run ICP
+        new_pose = register_frame(
+            points=source,
+            voxel_map=self.local_map,
+            initial_guess=initial_guess,
+            max_correspondance_distance=3 * sigma,
+            kernel=sigma / 3,
+        )
+
+        self.adaptive_threshold.update_model_deviation(np.linalg.inv(initial_guess) @ new_pose)
+        self.poses.append(new_pose)
+        return frame, source
+
+
     def voxelize(self, iframe):
         frame_downsample = voxel_down_sample(iframe, self.config.mapping.voxel_size * 0.5)
         source = voxel_down_sample(frame_downsample, self.config.mapping.voxel_size * 1.5)

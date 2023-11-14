@@ -30,6 +30,7 @@ from typing import Callable, List
 import numpy as np
 
 YELLOW = np.array([1, 0.706, 0])
+WHITE = np.array([1, 1, 1])
 RED = np.array([128, 0, 0]) / 255.0
 BLACK = np.array([0, 0, 0]) / 255.0
 BLUE = np.array([0.4, 0.5, 0.9])
@@ -82,9 +83,11 @@ class RegistrationVisualizer(StubVisualizer):
             self.render_source,
         )
 
-    def update(self, source, keypoints, target_map, pose):
+    def update(self, source, keypoints, target_map, pose, results_dir, idx):
         target = target_map.point_cloud()
         self._update_geometries(source, keypoints, target, pose)
+        if idx in [50, 150, 250, 350, 450, 490]:
+            self.vis.capture_screen_image(os.path.join(results_dir, f"viewpoint_{idx}.png"), True)  # Optional, to save a screenshot  
         while self.block_vis:
             self.vis.poll_events()
             self.vis.update_renderer()
@@ -216,6 +219,7 @@ class RegistrationVisualizer(StubVisualizer):
         if self.render_map:
             target = copy.deepcopy(target)
             self.target.points = self.o3d.utility.Vector3dVector(target)
+            self.target.paint_uniform_color(WHITE)
             if not self.global_view:
                 self.target.transform(np.linalg.inv(pose))
         else:
