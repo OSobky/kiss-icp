@@ -1,0 +1,68 @@
+# Trajectory viz with the latest experiment from kiss_icp
+
+# path to different experiments
+matched: kiss-icp/python/results/2023-08-13_21-47-41/matched_poses_kitti.txt
+ground_removed_pcds_0.0: kiss-icp/python/results/2023-08-21_22-38-30/ground_removed_pcds_0.0_poses_kitti.txt
+
+# Trajectory viz with the latest experiment from kiss_icp
+evo_traj kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/kiss-icp/python/results/latest/matched_poses_kitti.txt --ref=/mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt -p --plot_mode=xy
+evo_traj kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/kiss-icp/python/results/latest/ground_removed_pcds_0.0_poses_kitti.txt --ref=/mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt -p --plot_mode=xy
+
+# Trajectory viz with the latest experiment from online kiss_icp registeration
+evo_traj kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/kiss-icp/python/results/2023-10-02_10-35-44/matched_poses_kitti.txt --ref=/mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt -p --plot_mode=xy
+
+
+# -- Absolute pose error 
+# ground removed in both
+evo_ape kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/kiss-icp/python/results/2023-08-21_22-38-30/ground_removed_pcds_0.0_poses_kitti.txt -va --plot --plot_mode xy --save_results results/tum_kissicp_ground_removed.zip
+
+
+# kiss-icp matched
+
+evo_ape kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/kiss-icp/python/results/2023-08-21_23-29-25/matched_poses_kitti.txt -va --plot --plot_mode xy --save_results results/tum_kissicp_mathced.zip
+
+
+# open3d point2point
+
+evo_ape kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/1-pcd-registeration/experiments/2023-08-13_20-43-24_floor_not_removed_3.0_threshold/estimated_tf_kitti.txt -va --plot --plot_mode xy --save_results results/tum_o3d_matched.zip
+
+
+# compare multiple experiments
+evo_res results/*.zip -p --save_table results/table.csv
+
+
+# -- Absolute pose error - Correct names
+# ground removed in both
+evo_ape kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/kiss-icp/python/results/presenation/kiss-icp-no-ground.txt -va --plot --plot_mode xy --save_results presentation_results/tum_kissicp_ground_removed.zip
+
+
+# kiss-icp matched
+
+evo_ape kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/kiss-icp/python/results/presenation/kiss-icp-ground.txt -va --plot --plot_mode xy --save_results presentation_results/tum_kissicp_mathced.zip
+
+
+# open3d point2point
+
+evo_ape kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/kiss-icp/python/results/presenation/p2p-icp-ground-thrhd3.txt -va --plot --plot_mode xy --save_results presentation_results/p2p-icp-ground-thrhd3.zip
+
+# open3d point2point
+
+evo_ape kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/kiss-icp/python/results/presenation/p2p-icp-no-ground-thrhd3.txt -va --plot --plot_mode xy --save_results presentation_results/p2p-icp-no-ground-thrhd3.zip
+
+
+# compare multiple experiments
+evo_res presentation_results/*.zip -p --save_table presentation_results/table.csv
+
+
+#################### P2P ICP ####################
+
+## -- Absolute pose error --  
+
+
+## -- Relative pose error --
+
+evo_rpe kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/1-pcd-registeration/experiments/2023-08-13_20-22-52_floor_not_removed_1.0_threshold/estimated_tf_kitti.txt -r full -v --plot --plot_mode xy --save_results /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/1-pcd-registeration/experiments/2023-08-13_20-22-52_floor_not_removed_1.0_threshold/relative_pose_error.zip
+
+## -- Trajectory viz -- 
+
+evo_traj kitti /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/1-pcd-registeration/experiments/2023-08-13_20-22-52_floor_not_removed_1.0_threshold/estimated_tf_kitti.txt --ref=/mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/tf_matrix/kitti/fixed_gt.txt -p --plot_mode=xy 
