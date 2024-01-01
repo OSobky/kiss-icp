@@ -1,3 +1,54 @@
+# Omar Readme
+
+## Install KISS-ICP edited version for Vehicle-Infrastrucutre Localizaiton 
+
+Following the following steps to install the modifed version of KISS-ICP:
+
+1. Clone the repo
+```bash 
+git clone https://github.com/OSobky/kiss-icp.git
+```
+
+2. Change directory to the python folder
+```bash
+cd kiss-icp/python
+```
+
+3. install kiss-icp package
+```bash
+pip install .
+```
+
+
+## KISS-ICP for Vehicle-Infrastructure Localization
+
+### Prerequistes 
+
+- Data folders for Vehicle & Infrastructure. Refer to Data section in [Veh-Infra](https://) 
+
+### Run KISS-ICP for Vehicle-Infrastructure Localization
+
+Following the same pattern in the [cmd.txt](kiss-icp/cmd) file. This contain different examples for different experiments. 
+
+For example: 
+
+```bash
+# Load infra Local map command with vehicle pointclouds 
+# plus get the initial guess from the gps and imu
+# plus increase the max distance for points
+
+kiss_icp_pipeline --local_map /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/local_map/kiss_icp_infra_full.npy \
+                  -v \
+                  --max_range 150 \
+                  -j 1 \
+                  -n 492 \
+                  --gps /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/03_gps/04_gps_position_drive/json/matched/ \
+                  --imu  /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/04_imu/04_imu_rotations_drive/json/matched/ \
+                  /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/01_vehicle_lidar_robosense/vehicle_lidar_robosense_driving_direction_east/s110_first_east/matched
+
+```
+
+
 <div align="center">
     <h1>KISS-ICP</h1>
     <a href="https://github.com/PRBonn/kiss-icp/releases"><img src="https://img.shields.io/github/v/release/PRBonn/kiss-icp?label=version" /></a>
