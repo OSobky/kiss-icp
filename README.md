@@ -24,7 +24,7 @@ pip install .
 
 ### Prerequistes 
 
-- Data folders for Vehicle & Infrastructure. Refer to Data section in [Veh-Infra](https://) 
+- Data folders for Vehicle & Infrastructure. Refer to Data section in [Veh-Infra](https://github.com/OSobky/veh-infr-loc/tree/master?tab=readme-ov-file#data) 
 
 ### Run KISS-ICP for Vehicle-Infrastructure Localization
 
