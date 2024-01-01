@@ -202,7 +202,7 @@ kiss_icp_pipeline -v \
                   /mnt/c/Users/elsobkyo/Documents/masters-thesis/Data/01_scene_01_omar/01_lidar/01_vehicle_lidar_robosense/vehicle_lidar_robosense_driving_direction_east/s110_first_east/transformed_cleaned_dir
 
 
-kiss_icp_pipeline --local_map /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/local_map/kiss_icp_infra_no_ground.npy \
+kiss_icp_pipeline --local_map /mnt/c/Users/elsobkyo/Documents/masters-thesis/veh-infr-loc/data/local_map/kiss_icp_infra.npy \
                   -v \
                   --max_range 150 \
                   -j 1 \
